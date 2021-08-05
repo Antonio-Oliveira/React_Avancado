@@ -1,61 +1,55 @@
-import React, { Component } from "react";
+import React, { useEffect, memo, useState } from "react";
 
-class Twitter extends Component {
-
-    state = {
-        tweet: "title",
-        test: true
-    }
-
-    componentDidMount() { // depois do render
-        const { posts, loading } = this.props;
-        console.log("componentDidMount-props", posts);
-        console.log("componentDidMount-loading", loading);
-    }
-
-    componentDidUpdate(prevProps) { // quando têm atualizações
-        const { loading } = this.props;
-        if (this.props.loading !== prevProps.loading) {
-            console.log("componentDidUpdate-loading", loading);
-        }
-    }
-
-    componentWillUnmount() { // quando os componentes são destruídos
-        console.log("componentWillUnmount: fui removido :D");
-    }
-
-    shouldComponentUpdate(nextProps, nextState) { // Verifica se pode renderizar os componentes novamente
-        console.log(this.state.tweet + " - " + nextState.tweet)
-        console.log("teste: "+ this.state.test);
-        return this.state.tweet !== nextState.tweet;
-    }
-
-    tweet = () => {
-        this.setState({
-            tweet: true
-        })
-    }
-
-    onRemoveTitle = () => {
-        this.state.test = !this.state.test;
-    }
-
-    render() {
-        const { posts } = this.props;
-        console.log("Render: ", posts);
-
-        return (
-            <div>
-                <button onClick={this.tweet}>Re-render</button>
-                <button onClick={this.onRemoveTitle}>Remover title</button>
-
-                {this.state.test && (
-
-                    <p>Title</p>
-                )}
-            </div>
-        )
-    }
+// shouldComponentUpdate, so que ó inverso, ele só atualizara quando for false
+const areEqual = (prevProps, nextProps) => {
+    return prevProps.loading === nextProps.loading;
 }
 
-export default Twitter;
+function Twitter(props) {
+
+    const { loading } = props;
+    const [tweet, setTweet] = useState();
+
+    // componentDidMount
+    useEffect(() => { // depois do render
+        const { posts, loading } = props;
+        console.log("componentDidMount-props", posts);
+        console.log("componentDidMount-loading", loading);
+    }, []);
+
+    // componentDidUpdate
+    useEffect(() => { // quando têm atualizações
+        console.log("componentDidUpdate-loading", loading);
+    }, [loading]);
+
+    // componentWillUnmount
+    useEffect(() => { // Chamado imediatamente após um componente ser destruído.
+        return () => {
+            console.log("componentWillUnmount: fui removido :D");
+        }
+    }, []);
+
+
+    /* 
+    shouldComponentUpdate = (nextProps, nextState) => { // Verifica se pode renderizar os componentes novamente
+        console.log(state.tweet + " - " + nextState.tweet)
+        console.log("teste: " + state.test);
+        return state.tweet !== nextState.tweet;
+    }
+    */
+    const handleTweet = () => {
+        setTweet("Tweet atualizado")
+    } 
+
+
+    console.log("Tweet atualizado", tweet)
+    return (
+        <div>
+             <button onClick={handleTweet}>Re-render</button>
+            tests
+        </div>
+    )
+
+}
+
+export default memo(Twitter, areEqual);
